@@ -1,0 +1,21 @@
+{% extends 'layouts.html' %}
+
+{% block body %}
+<div class="jumbotron text-center">
+    <h1>Welcome To Shift Scheduling App</h1>
+        <p class="lead">This is prototype application with simple functionalities.
+             To begin select below tema to check schedule. Above select teams tab to browse through teams and its memebers. On administration tab is possibile to create 
+            teams and add members to each team.
+        </p>
+        
+    </div>
+  <h1>Select Team</h1>
+  <ul class="list-group">
+        {% for x in teams %}
+            
+            <li class="list-group-item"><a href="team/{{teams[x]}}/schedule/{{month}}/{{year}}">{{teams[x]}}</a></li>
+           
+         {% endfor %}
+  </ul>
+{% endblock %}
+

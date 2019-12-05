@@ -1,0 +1,43 @@
+{% extends 'layouts.html' %}
+
+
+{% block body%}
+  
+<h2>{{month_name}}</h2>
+<h2>{{year_name}}</h2>
+
+    <form method='POST' action="">
+        <div class="table-responsive-sm">
+            <table class="table table-dark table-striped table-bordered table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th scope="col" ></th>
+                            {% for x in range(1,month_length+1) %}
+                            <th scope="col">
+                                {{x}}
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody >
+                            {% for each in team_members %}
+                                <tr>
+                                    <th scope="row" >{{each}}</th>
+                                    {% for x in range(1,month_length+1) %}
+                                    {% set y= "{0}{1}".format(each,x) %}
+                                      <td><input type="text" name="{{y}}"  value="{{shifts[each][x]}}" style="max-width:45px"></td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <th scope="row"> 
+                                     <input type="submit" class="btn btn-primary" value="Save">
+                                </th>
+                            </tr>
+                    </tbody>
+            </table>
+        </div>         
+    </form>
+{% endblock %}
+
+

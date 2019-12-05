@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+        <title>Moj test flask-a</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> 
+       <!-- have to check properties
+       <style>
+        table,
+thead,
+tr,
+tbody,
+th,
+td {
+  text-align: center;
+}
+
+.table td {
+  text-align: center;
+}
+        </style>  -->
+    </head>
+    
+    <body >
+      {% include 'includes/_navbar.html' %}
+        <div class="container"  >
+         
+        {% include 'includes/_messages.html' %}
+        {% block body  %}{% endblock%}
+        </div>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        
+     
+    </body>
+
+
+
+
+
+</html>

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from datetime import datetime, date
 from calendar import monthrange, prevmonth, nextmonth
 import ibm_db
@@ -135,14 +136,15 @@ def edit_schedule(team_name, month, year):
 				y= each+str(x)
 				
 				sql="""MERGE INTO SHIFTS
-                    USING ( VALUES (%s, %s, %s, '%s', '09:00','17:00','%s') ) AS SOURCE(YEAR_S, MONTH_S, DAY_S, SHIFT, START_S, END_S , AGENT_S)
-                    ON SHIFTS.YEAR_S=SOURCE.YEAR_S AND SHIFTS.MONTH_S=SOURCE.MONTH_S AND SHIFTS.DAY_S=SOURCE.DAY_S AND SHIFTS.START_S=SOURCE.START_S AND SHIFTS.END_S=SOURCE.END_S AND SHIFTS.AGENT_S=SOURCE.AGENT_S
-                    WHEN MATCHED THEN UPDATE 
-                    SET SHIFT=SOURCE.SHIFT
-                    WHEN NOT MATCHED THEN INSERT VALUES (SOURCE.YEAR_S, SOURCE.MONTH_S, SOURCE.DAY_S, SOURCE.SHIFT,SOURCE.START_S,SOURCE.END_S, SOURCE.AGENT_S);
-                    """ % (year, month, x, result[y] ,each )	
+					USING ( VALUES (%s, %s, %s, '%s', '09:00','17:00','%s') ) AS SOURCE(YEAR_S, MONTH_S, DAY_S, SHIFT, START_S, END_S , AGENT_S)
+					ON SHIFTS.YEAR_S=SOURCE.YEAR_S AND SHIFTS.MONTH_S=SOURCE.MONTH_S AND SHIFTS.DAY_S=SOURCE.DAY_S AND SHIFTS.START_S=SOURCE.START_S AND SHIFTS.END_S=SOURCE.END_S AND SHIFTS.AGENT_S=SOURCE.AGENT_S
+					WHEN MATCHED THEN UPDATE 
+					SET SHIFT=SOURCE.SHIFT
+					WHEN NOT MATCHED THEN INSERT VALUES (SOURCE.YEAR_S, SOURCE.MONTH_S, SOURCE.DAY_S, SOURCE.SHIFT,SOURCE.START_S,SOURCE.END_S, SOURCE.AGENT_S);
+					""" % (year, month, x, result[y] ,each )	
 				stmt=ibm_db.exec_immediate(conn, sql)
 		ibm_db.close(conn)
+		flash('Database updated', "success")
 		return redirect(url_for('schedule',team_name=team_name, month=month, year=year))
 	return render_template('edit_schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name)
 
@@ -161,6 +163,52 @@ def prev_month(team_name, month, year):
 	team_name=team_name
 	month=variable[1]
 	return redirect(url_for('schedule', team_name=team_name, month=month, year=year ))
+
+
+@app.route('/administration')
+def administration():
+	try:
+		conn = ibm_db.connect(dsn, "", "")
+	except:
+		print ("Unable to connect to database")
+	teams={}
+	sql="select * from teams;"
+	selectStmt = ibm_db.exec_immediate(conn, sql)
+	dictionary = ibm_db.fetch_assoc(selectStmt)
+	while dictionary != False:
+		teams.update({dictionary['TEAM_ID']:dictionary['TEAM_NAME']})
+		dictionary = ibm_db.fetch_assoc(selectStmt)
+	ibm_db.close(conn)
+	return render_template('administration.html', teams=teams)
+
+class NewTeamForm(Form):
+	title =StringField('Title', [validators.Length(min=1, max=100)])
+
+@app.route('/create_new_team',methods=['GET','POST'])
+def create_new_team():
+	form=NewTeamForm(request.form)
+	if request.method=='POST' and form.validate():
+		title = form.title.data
+		try:
+			conn = ibm_db.connect(dsn, "", "")
+		except:
+			print ("Unable to connect to database")
+
+		sql="""CREATE TABLE %s (
+		team_id integer not null GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1)
+		,team_name VARCHAR(100)
+		);""" % (title)
+		CreateStmt = ibm_db.exec_immediate(conn, sql)
+
+		sql="""INSERT INTO teams (team_name) VALUES
+		'%s';
+		"""% (title)
+		InsertStmt = ibm_db.exec_immediate(conn, sql)
+		ibm_db.close(conn)
+		flash('New team has been created', "success")
+		return redirect(url_for('administration'))
+	return render_template('create_new_team.html', form=form)
+
 
 if __name__=='__main__':
 	app.secret_key='secret123'

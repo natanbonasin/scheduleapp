@@ -1,0 +1,36 @@
+{% extends 'layouts2.html' %}
+
+{% block body %}
+<div class="jumbotron text-center">
+    <h1>Administration</h1>
+    <p class="lead">On this page, teams can be created and existing teams can be modified.
+    </p> 
+</div>
+<div class="row">
+        <div class="col"><a href="/create_new_team"  class="btn btn-warning float-left" >Create new team</a></div>
+    
+</div>
+<div class="row">
+    <p></p>
+</div>
+  <table class="table table-striped">
+          
+            <tr>
+                <th>Team</th>
+                <th></th>
+            </tr>
+            {% for x in teams %}
+            <tr>
+                <td>
+                    {{teams[x]}}
+                </td> 
+                <td>
+                    <a href="/team/{{teams[x]}}/edit"  class="btn btn-warning float-right" >Edit</a>
+                </td>
+            </tr>
+            
+           
+            {% endfor %}
+ 
+</table>
+{% endblock %}

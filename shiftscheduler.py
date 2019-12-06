@@ -3,6 +3,7 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from datetime import datetime, date
 from calendar import monthrange, prevmonth, nextmonth
 import ibm_db
+import os
 
 app=Flask(__name__)
 
@@ -11,8 +12,8 @@ dsn_database = "BLUDB"            # e.g. "BLUDB"
 dsn_hostname = "dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net" # e.g.: "awh-yp-small03.services.dal.bluemix.net"
 dsn_port = "50000"                # e.g. "50000" 
 dsn_protocol = "TCPIP"            # i.e. "TCPIP"
-dsn_uid = "lwb20106"        # e.g. "dash104434"
-dsn_pwd = "nng3vj3r9-s2rnmg"       # e.g. "7dBZ3wWt9XN6$o0JiX!m"
+dsn_uid = "dtv29943"        # e.g. "dash104434"
+dsn_pwd = "ph1hkr2cxf6c^gzs"       # e.g. "7dBZ3wWt9XN6$o0JiX!m"
 
 dsn = (
 	"DRIVER={0};"
@@ -277,7 +278,9 @@ def add_new_member(team_name):
 
 	return render_template('add_new_member.html', form=form)
 
-
-if __name__=='__main__':
-	app.secret_key='secret123'
-	app.run(debug=True)
+port = os.getenv('PORT', '5000')
+if __name__ == "__main__":
+	app.run(host='0.0.0.0', port=int(port))
+#if __name__=='__main__':
+#	app.secret_key='secret123'
+#	app.run(debug=True)

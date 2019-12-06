@@ -1,0 +1,5 @@
+applications:
+- name: shiftscheduler
+  memory: 256M
+  command: python shiftscheduler.py
+  random-route: true

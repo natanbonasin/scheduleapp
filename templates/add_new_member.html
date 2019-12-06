@@ -1,14 +1,13 @@
 {% extends 'layouts2.html' %}
 {% block body%}
     <h1>
-        Create new team
+        Add new team member
     </h1>
     {% from "includes/_formhelpers.html" import render_field %}
     <form method='POST' action="" placeholder="">
         <div class="form-group">
-            {{render_field(form.title, class_="form-control", placeholder="Enter team name")}}
+            {{render_field(form.name, class_="form-control", placeholder="Enter new team member name")}}
         </div>
-       
         <p>
             <input type="submit" class="btn btn-primary" value="Submit">
         </p>

@@ -1,0 +1,42 @@
+{% extends 'layouts2.html' %}
+{% block body%}
+    <h1>
+        Edit team
+    </h1>
+    <hr>
+    <h4>Team: {{team_name}}</h4>    
+    <hr>
+    <div class="row">
+            <div class="col"><a href="/administration/add_new_member/{{team_name}}"  class="btn btn-warning float-left" >Add new member</a></div>
+    </div>
+    <hr>
+    <table class="table table-striped">
+        <tr>
+            <th>Members</th>
+            <th></th>
+        </tr>
+    {% for member in team_members %}
+    <tr>
+        <td>{{member}}</td>
+        <td>
+                <form action="{{url_for('delete_team_member',team_name=team_name, member=member)}}" method="POST">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <input type="submit" value="Delete" class="btn btn-danger float-right">
+                </form>
+        </td>
+    </tr>
+    {% endfor %}
+        <tr>
+            <td>
+                    <form action="{{url_for('delete_team',team_name=team_name)}}" method="POST">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="submit" value="Delete whole Team" class="btn btn-danger">
+                    </form>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+
+
+
+{% endblock %}

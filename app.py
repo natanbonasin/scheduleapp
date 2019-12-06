@@ -184,7 +184,7 @@ def administration():
 class NewTeamForm(Form):
 	title =StringField('Title', [validators.Length(min=1, max=100)])
 
-@app.route('/create_new_team',methods=['GET','POST'])
+@app.route('/administration/create_new_team',methods=['GET','POST'])
 def create_new_team():
 	form=NewTeamForm(request.form)
 	if request.method=='POST' and form.validate():
@@ -195,8 +195,8 @@ def create_new_team():
 			print ("Unable to connect to database")
 
 		sql="""CREATE TABLE %s (
-		team_id integer not null GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1)
-		,team_name VARCHAR(100)
+		TEAM_MEMBER_ID integer not null GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1)
+		,FNAME VARCHAR(100)
 		);""" % (title)
 		CreateStmt = ibm_db.exec_immediate(conn, sql)
 
@@ -208,6 +208,74 @@ def create_new_team():
 		flash('New team has been created', "success")
 		return redirect(url_for('administration'))
 	return render_template('create_new_team.html', form=form)
+
+@app.route('/administration/team/<string:team_name>/edit', methods=['GET','POST'])
+def edit_team(team_name):
+	team_members=[]
+	try:
+		conn = ibm_db.connect(dsn, "", "")
+	except:
+		print ("Unable to connect to database")
+	sql="select * from %s;" % (team_name)
+	selectStmt = ibm_db.exec_immediate(conn, sql)
+	dictionary = ibm_db.fetch_assoc(selectStmt)
+	while dictionary != False:
+		team_members.append(dictionary['FNAME'])
+		dictionary = ibm_db.fetch_assoc(selectStmt)
+	ibm_db.close(conn)
+	return render_template('edit_team.html', team_name=team_name, team_members=team_members)
+
+@app.route('/delete_team_member/<string:team_name>/<string:member>',methods=['POST'])
+def delete_team_member(team_name,member):
+	try:
+		conn = ibm_db.connect(dsn, "", "")
+	except:
+		print ("Unable to connect to database")
+	sql="""DELETE FROM %s
+	WHERE FNAME='%s';
+	""" % (team_name, member)
+	deleteStmt = ibm_db.exec_immediate(conn, sql)
+	flash('Member deleted', "success")
+	ibm_db.close(conn)
+	return redirect(url_for('edit_team', team_name=team_name))
+
+@app.route('/delete_team/<string:team_name>', methods=['POST'])
+def delete_team(team_name):
+	try:
+		conn = ibm_db.connect(dsn, "", "")
+	except:
+		print ("Unable to connect to database")
+	sql="drop table %s" % (team_name)
+	deleteStmt = ibm_db.exec_immediate(conn, sql)
+	sql="""DELETE FROM TEAMS
+	WHERE TEAM_NAME='%s';
+	""" % (team_name)
+	deleteStmt = ibm_db.exec_immediate(conn, sql)
+	ibm_db.close(conn)
+	flash('Team deleted', "success")
+	return redirect(url_for('administration'))
+
+class NewMemberForm(Form):
+	name =StringField('Name', [validators.Length(min=1, max=100)])
+
+@app.route('/administration/add_new_member/<string:team_name>', methods=['GET','POST'])
+def add_new_member(team_name):
+	form=NewMemberForm(request.form)
+	if request.method=='POST' and form.validate():
+		name=form.name.data
+		try:
+			conn = ibm_db.connect(dsn, "", "")
+		except:
+			print ("Unable to connect to database")
+
+		sql="""INSERT INTO %s (FNAME) VALUES '%s';
+		"""% (team_name, name)
+		InsertStmt = ibm_db.exec_immediate(conn, sql)
+		ibm_db.close(conn)
+		flash('New member has been added to the team', "success")
+		return redirect(url_for('edit_team', team_name=team_name))
+
+	return render_template('add_new_member.html', form=form)
 
 
 if __name__=='__main__':

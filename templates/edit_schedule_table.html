@@ -7,6 +7,7 @@
 <h2>{{year_name}}</h2>
 
     <form method='POST' action="">
+        <input  type="hidden" name="csrf_token" value="{{ csrf_token()}}"   />
         <div class="table-responsive-sm">
             <table class="table table-dark table-striped table-bordered table-hover table-sm">
                     <thead>
@@ -31,6 +32,7 @@
                             {% endfor %}
                             <tr>
                                 <th scope="row"> 
+                                     
                                      <input type="submit" class="btn btn-primary" value="Save">
                                 </th>
                             </tr>

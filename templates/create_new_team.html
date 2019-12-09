@@ -5,6 +5,7 @@
     </h1>
     {% from "includes/_formhelpers.html" import render_field %}
     <form method='POST' action="" placeholder="">
+        <input  type="hidden" name="csrf_token" value="{{ csrf_token()}}"   />
         <div class="form-group">
             {{render_field(form.title, class_="form-control", placeholder="Enter team name")}}
         </div>

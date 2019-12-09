@@ -1,11 +1,16 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from flask_wtf.csrf import CSRFProtect
 from datetime import datetime, date
 from calendar import monthrange, prevmonth, nextmonth
 import ibm_db
 import os
 
+
 app=Flask(__name__)
+app.secret_key='secret123'
+csrf=CSRFProtect(app)
+
 
 dsn_driver = "{IBM DB2 ODBC DRIVER}"
 dsn_database = "BLUDB"            # e.g. "BLUDB"
@@ -149,7 +154,7 @@ def edit_schedule(team_name, month, year):
 		return redirect(url_for('schedule',team_name=team_name, month=month, year=year))
 	return render_template('edit_schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name)
 
-@app.route('/next_month/<string:team_name>/<int:month>/<int:year>', methods=['POST'])
+@app.route('/next_month/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
 def next_month(team_name, month, year):
 	variable=nextmonth(year,month)
 	year=variable[0]
@@ -157,7 +162,7 @@ def next_month(team_name, month, year):
 	month=variable[1]
 	return redirect(url_for('schedule', team_name=team_name, month=month, year=year, ))
 
-@app.route('/prev_month/<string:team_name>/<int:month>/<int:year>', methods=['POST'])
+@app.route('/prev_month/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
 def prev_month(team_name, month, year):
 	variable=prevmonth(year,month)
 	year=variable[0]
@@ -274,13 +279,16 @@ def add_new_member(team_name):
 		InsertStmt = ibm_db.exec_immediate(conn, sql)
 		ibm_db.close(conn)
 		flash('New member has been added to the team', "success")
-		return redirect(url_for('edit_team', team_name=team_name))
+		return redirect(url_for('edit_team', team_name=team_name),code=302)
 
 	return render_template('add_new_member.html', form=form)
 
-port = os.getenv('PORT', '5000')
-if __name__ == "__main__":
-	app.run(host='0.0.0.0', port=int(port))
-#if __name__=='__main__':
-#	app.secret_key='secret123'
-#	app.run(debug=True)
+#port = os.getenv('PORT', '5000')
+#if __name__ == "__main__":
+#	app.secret_key='mybestsecretkeyever'
+#	app.run(host='0.0.0.0', port=int(port))
+if __name__=='__main__':
+	
+	
+	app.run(debug=True )
+	

@@ -6,24 +6,21 @@
   <h2>{{month_name}}</h2>
   <h2>{{year_name}}</h2>
   <td>
-      <form action="{{url_for('prev_month',team_name=team_name, month=month, year=year)}}" method="POST">
-          
-          <input type="submit" value="prev" name="prev" class="btn btn-danger">
-      </form>
+    
+          <a href="{{url_for('prev_month',team_name=team_name, month=month, year=year)}}"  class="btn btn-warning " >Prev</a>
+      
+     
   </td>
   <td>
-  <form action="{{url_for('next_month', team_name=team_name, month=month, year=year)}}" method="POST">
+  
+      <a href="{{url_for('next_month', team_name=team_name, month=month, year=year)}}"  class="btn btn-warning " >Next</a>
       
-      <input type="submit" value="next" name="next" class="btn btn-success">
-      
-  </form>
   </td>
   <td>
       <a href="{{url_for('edit_schedule', team_name=team_name, month=month, year=year)}}"  class="btn btn-warning " >Edit</a>
 
   </td>
-  {% from "includes/_formhelpers.html" import render_field %}
-    <form method='POST' action="">
+ 
         <div class="table-responsive-sm">
             <table class="table table-dark table-striped table-bordered table-hover table-sm">
                    
@@ -62,8 +59,7 @@
                   
           </table>
             </div>    
-              
-    </form>
+
 
 
 

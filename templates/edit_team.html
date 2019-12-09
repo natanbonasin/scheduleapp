@@ -20,6 +20,7 @@
         <td>{{member}}</td>
         <td>
                 <form action="{{url_for('delete_team_member',team_name=team_name, member=member)}}" method="POST">
+                        <input  type="hidden" name="csrf_token" value="{{ csrf_token()}}"   />
                     <input type="hidden" name="_method" value="DELETE">
                     <input type="submit" value="Delete" class="btn btn-danger float-right">
                 </form>
@@ -29,6 +30,7 @@
         <tr>
             <td>
                     <form action="{{url_for('delete_team',team_name=team_name)}}" method="POST">
+                            <input  type="hidden" name="csrf_token" value="{{ csrf_token()}}"   />
                             <input type="hidden" name="_method" value="DELETE">
                             <input type="submit" value="Delete whole Team" class="btn btn-danger">
                     </form>

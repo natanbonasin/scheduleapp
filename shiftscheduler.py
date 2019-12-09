@@ -13,12 +13,12 @@ csrf=CSRFProtect(app)
 
 
 dsn_driver = "{IBM DB2 ODBC DRIVER}"
-dsn_database = "BLUDB"            # e.g. "BLUDB"
-dsn_hostname = "dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net" # e.g.: "awh-yp-small03.services.dal.bluemix.net"
-dsn_port = "50000"                # e.g. "50000" 
-dsn_protocol = "TCPIP"            # i.e. "TCPIP"
-dsn_uid = "dtv29943"        # e.g. "dash104434"
-dsn_pwd = "ph1hkr2cxf6c^gzs"       # e.g. "7dBZ3wWt9XN6$o0JiX!m"
+dsn_database = "BLUDB"          
+dsn_hostname = "dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net" 
+dsn_port = "50000"                
+dsn_protocol = "TCPIP"         
+dsn_uid = "dtv29943"    
+dsn_pwd = "ph1hkr2cxf6c^gzs"      
 
 dsn = (
 	"DRIVER={0};"
@@ -34,11 +34,9 @@ dsn = (
 def index():
 	# i need session username to welcome user
 	# i need all teams from sql db2
-	try:
-		conn = ibm_db.connect(dsn, "", "")
-		
-	except:
-		print ("Unable to connect to database")
+	
+	conn = ibm_db.connect(dsn, "", "")
+	
 	teams={}
 	sql="select * from teams;"
 	selectStmt = ibm_db.exec_immediate(conn, sql)
@@ -54,16 +52,14 @@ def index():
 def schedule(team_name, month, year):
 	#is is team id, so i need first query team tabel and get list of agents
 	#i need all team members
-
 	shifts={}
-	
 	team_members=[]
 	team={}
-	try:
-		conn = ibm_db.connect(dsn, "", "")
-		
-	except:
-		print ("Unable to connect to database")
+	month_length=monthrange(year,month)[1]
+	month_days=[]
+	for x in range(1,month_length+1):
+		month_days.append(date(year,month,x).strftime('%A')[:3])
+	conn = ibm_db.connect(dsn, "", "")
 	sql="select * from %s;" % (team_name)
 	selectStmt = ibm_db.exec_immediate(conn, sql)
 	dictionary = ibm_db.fetch_assoc(selectStmt)
@@ -87,9 +83,9 @@ def schedule(team_name, month, year):
 		
 	month_name=date(year,month,1).strftime('%B')
 	year_name=date(year,month,1).strftime('%Y')
-	month_length=monthrange(year,month)[1]
+	
 	ibm_db.close(conn)
-	return render_template('schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name)
+	return render_template('schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name, month_days=month_days)
 
 @app.route('/team/<string:team_name>/edit/schedule/<int:month>/<int:year>',methods=['GET','POST'])
 def edit_schedule(team_name, month, year):
@@ -97,6 +93,9 @@ def edit_schedule(team_name, month, year):
 	shifts={}
 	team_members=[]
 	team={}
+	month_days=[]
+	for x in range(1,month_length+1):
+		month_days.append(date(year,month,x).strftime('%A')[:3])
 	try:
 		conn = ibm_db.connect(dsn, "", "")
 		
@@ -152,7 +151,7 @@ def edit_schedule(team_name, month, year):
 		ibm_db.close(conn)
 		flash('Database updated', "success")
 		return redirect(url_for('schedule',team_name=team_name, month=month, year=year))
-	return render_template('edit_schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name)
+	return render_template('edit_schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name, month_days=month_days)
 
 @app.route('/next_month/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
 def next_month(team_name, month, year):
@@ -288,7 +287,5 @@ def add_new_member(team_name):
 #	app.secret_key='mybestsecretkeyever'
 #	app.run(host='0.0.0.0', port=int(port))
 if __name__=='__main__':
-	
-	
 	app.run(debug=True )
 	

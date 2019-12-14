@@ -328,10 +328,10 @@ def add_new_member(team_name):
 
 	return render_template('add_new_member.html', form=form)
 
-#port = os.getenv('PORT', '5000')
-#if __name__ == "__main__":
-#	app.secret_key='mybestsecretkeyever'
-#	app.run(host='0.0.0.0', port=int(port))
-if __name__=='__main__':
-	app.run(debug=True )
+port = os.getenv('PORT', '5000')
+if __name__ == "__main__":
+	app.secret_key='mybestsecretkeyever'
+	app.run(host='0.0.0.0', port=int(port))
+#if __name__=='__main__':
+#	app.run(debug=True )
 	

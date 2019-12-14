@@ -56,9 +56,15 @@ def schedule(team_name, month, year):
 	team_members=[]
 	team={}
 	month_length=monthrange(year,month)[1]
+	#month days is 3 letter string to help out with date example 'Mon'
 	month_days=[]
+	weekends=[]
 	for x in range(1,month_length+1):
 		month_days.append(date(year,month,x).strftime('%A')[:3])
+		if date(year,month,x).weekday()==5 or  date(year,month,x).weekday()==6:
+			weekends.append('WE')
+		else:
+			weekends.append('BH')
 	conn = ibm_db.connect(dsn, "", "")
 	sql="select * from %s;" % (team_name)
 	selectStmt = ibm_db.exec_immediate(conn, sql)
@@ -85,7 +91,7 @@ def schedule(team_name, month, year):
 	year_name=date(year,month,1).strftime('%Y')
 	
 	ibm_db.close(conn)
-	return render_template('schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name, month_days=month_days)
+	return render_template('schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, weekends=weekends, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name, month_days=month_days)
 
 @app.route('/team/<string:team_name>/edit/schedule/<int:month>/<int:year>',methods=['GET','POST'])
 def edit_schedule(team_name, month, year):
@@ -94,8 +100,15 @@ def edit_schedule(team_name, month, year):
 	team_members=[]
 	team={}
 	month_days=[]
+	month_length=monthrange(year,month)[1]
+	weekends=[]
 	for x in range(1,month_length+1):
 		month_days.append(date(year,month,x).strftime('%A')[:3])
+		if date(year,month,x).weekday()==5 or  date(year,month,x).weekday()==6:
+			weekends.append('WE')
+		else:
+			weekends.append('BH')
+	
 	try:
 		conn = ibm_db.connect(dsn, "", "")
 		
@@ -124,7 +137,7 @@ def edit_schedule(team_name, month, year):
 		
 	month_name=date(year,month,1).strftime('%B')
 	year_name=date(year,month,1).strftime('%Y')
-	month_length=monthrange(year,month)[1]
+	
 	ibm_db.close(conn)
 	
 
@@ -151,7 +164,7 @@ def edit_schedule(team_name, month, year):
 		ibm_db.close(conn)
 		flash('Database updated', "success")
 		return redirect(url_for('schedule',team_name=team_name, month=month, year=year))
-	return render_template('edit_schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name, month_days=month_days)
+	return render_template('edit_schedule_table.html', month=month, year=year, month_name=month_name, year_name=year_name, weekends=weekends,month_length=month_length, shifts=shifts, team_members=team_members, team_name=team_name, month_days=month_days)
 
 @app.route('/next_month/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
 def next_month(team_name, month, year):
@@ -169,6 +182,39 @@ def prev_month(team_name, month, year):
 	month=variable[1]
 	return redirect(url_for('schedule', team_name=team_name, month=month, year=year ))
 
+@app.route('/today_month/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
+def today_month(team_name, month, year):
+	current_month = datetime.now().month
+	current_year = datetime.now().year
+	team_name=team_name
+	return redirect(url_for('schedule', team_name=team_name, month=current_month, year=current_year ))
+
+#################################
+
+@app.route('/next_month_edit/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
+def next_month_edit(team_name, month, year):
+	variable=nextmonth(year,month)
+	year=variable[0]
+	team_name=team_name
+	month=variable[1]
+	return redirect(url_for('edit_schedule', team_name=team_name, month=month, year=year, ))
+
+@app.route('/prev_month_edit/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
+def prev_month_edit(team_name, month, year):
+	variable=prevmonth(year,month)
+	year=variable[0]
+	team_name=team_name
+	month=variable[1]
+	return redirect(url_for('edit_schedule', team_name=team_name, month=month, year=year ))
+
+@app.route('/today_month_edit/<string:team_name>/<int:month>/<int:year>', methods=['GET'])
+def today_month_edit(team_name, month, year):
+	current_month = datetime.now().month
+	current_year = datetime.now().year
+	team_name=team_name
+	return redirect(url_for('edit_schedule', team_name=team_name, month=current_month, year=current_year ))
+
+#######################################
 
 @app.route('/administration')
 def administration():

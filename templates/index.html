@@ -10,12 +10,12 @@
         
     </div>
   <h1>Select Team</h1>
-  <ul class="list-group">
+  <div class="list-group">
         {% for x in teams %}
             
-            <li class="list-group-item"><a href="team/{{teams[x]}}/schedule/{{month}}/{{year}}">{{teams[x]}}</a></li>
+        <a href="team/{{teams[x]}}/schedule/{{month}}/{{year}}" class="list-group-item list-group-item-action">{{teams[x]}}</a>
            
          {% endfor %}
-  </ul>
+  </div>
 {% endblock %}
 
